@@ -9,7 +9,7 @@ const {
   performAccessibilityAudit,
   generateAccessibilityReport,
 } = require('./accessibility');
-const { createReportServer } = require('./reportServer');
+const { createReportServer } = require('./reports/reportServer');
 
 /**
  * Show interactive menu after validation completion

@@ -561,6 +561,15 @@ function getReportStyles() {
         font-weight: 500;
     }
 
+    .memory-analysis, .network-analysis, .efficiency-analysis, 
+    .violations-section, .accessibility-summary, .quality-issues, .articles-summary {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
     .performance-timeline {
         background: white;
         border-radius: 15px;
@@ -710,7 +719,8 @@ function generateReportContent(data, reportType) {
     case 'accessibility':
       return generateAccessibilityReport(data);
     case 'performance':
-      return generatePerformanceReport(data);
+      // Extract performance data from validation result
+      return generatePerformanceReport(data.performanceReport || data);
     case 'complete':
       return generateCompleteReport(data);
     case 'quality':
@@ -949,7 +959,25 @@ function generateAccessibilityReport(data) {
  * @returns {string} HTML content
  */
 function generatePerformanceReport(data) {
-  const { summary, phases, efficiency } = data;
+  // Handle missing or incomplete performance data
+  if (!data || typeof data !== 'object') {
+    return `
+      <div class="header">
+          <h1>📊 Performance Dashboard</h1>
+          <div class="subtitle">Execution Analysis & Metrics</div>
+      </div>
+      <div class="no-data">
+          <h3>No performance data available</h3>
+          <p>Please run the validation first to generate performance metrics.</p>
+      </div>
+    `;
+  }
+
+  const summary = data.summary || {};
+  const phases = data.phases || {};
+  const efficiency = data.efficiency || {};
+  const memory = data.memory || {};
+  const network = data.network || {};
 
   return `
     <div class="header">
@@ -960,39 +988,46 @@ function generatePerformanceReport(data) {
     <div class="stats-grid">
         <div class="stat-card">
             <span class="icon">⏱️</span>
-            <div class="value">${summary.totalDurationFormatted}</div>
+            <div class="value">${summary.totalDurationFormatted || 'N/A'}</div>
             <div class="label">Total Duration</div>
         </div>
         <div class="stat-card">
             <span class="icon">🚀</span>
-            <div class="value">${efficiency.articlesPerSecond}</div>
+            <div class="value">${efficiency.articlesPerSecond || 'N/A'}</div>
             <div class="label">Articles/Second</div>
         </div>
         <div class="stat-card">
             <span class="icon">💾</span>
-            <div class="value">${summary.peakMemoryMB} MB</div>
+            <div class="value">${summary.peakMemoryMB || 'N/A'} ${
+    summary.peakMemoryMB ? 'MB' : ''
+  }</div>
             <div class="label">Peak Memory</div>
         </div>
         <div class="stat-card">
             <span class="icon">🌐</span>
-            <div class="value">${summary.networkRequests}</div>
+            <div class="value">${summary.networkRequests || 0}</div>
             <div class="label">Network Requests</div>
         </div>
     </div>
 
+    ${
+      Object.keys(phases).length > 0
+        ? `
     <div class="performance-timeline">
         <h3 style="margin-bottom: 20px; color: #4a5568;">Execution Timeline</h3>
         ${Object.entries(phases)
           .map(
-            ([phase, data]) => `
+            ([phase, phaseData]) => `
             <div class="timeline-item">
                 <div class="timeline-phase">${phase
                   .replace(/_/g, ' ')
                   .toUpperCase()}</div>
-                <div class="timeline-duration">${data.durationFormatted}</div>
+                <div class="timeline-duration">${
+                  phaseData.durationFormatted || 'N/A'
+                }</div>
                 <div class="timeline-bar">
                     <div class="timeline-fill" style="width: ${
-                      data.percentage
+                      phaseData.percentage || 0
                     }%"></div>
                 </div>
             </div>
@@ -1000,6 +1035,138 @@ function generatePerformanceReport(data) {
           )
           .join('')}
     </div>
+    `
+        : `
+    <div class="no-data">
+        <h3>No phase data available</h3>
+        <p>Phase timing information is not available for this run.</p>
+    </div>
+    `
+    }
+
+    ${
+      memory.initial && memory.final
+        ? `
+    <div class="memory-analysis">
+        <h3 style="margin-bottom: 20px; color: #4a5568;">Memory Usage Analysis</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="icon">📈</span>
+                <div class="value">${
+                  memory.initial.heapUsedMB || 'N/A'
+                } MB</div>
+                <div class="label">Initial Memory</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">📊</span>
+                <div class="value">${memory.final.heapUsedMB || 'N/A'} MB</div>
+                <div class="label">Final Memory</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">⚡</span>
+                <div class="value">${memory.peak.heapUsedMB || 'N/A'} MB</div>
+                <div class="label">Peak Memory</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">📉</span>
+                <div class="value">${
+                  memory.delta && memory.delta.heapUsedMB
+                    ? `${memory.delta.heapUsedMB > 0 ? '+' : ''}${
+                        memory.delta.heapUsedMB
+                      }`
+                    : 'N/A'
+                } ${memory.delta && memory.delta.heapUsedMB ? 'MB' : ''}</div>
+                <div class="label">Memory Delta</div>
+            </div>
+        </div>
+    </div>
+    `
+        : ''
+    }
+
+    ${
+      network.requests
+        ? `
+    <div class="network-analysis">
+        <h3 style="margin-bottom: 20px; color: #4a5568;">Network Performance</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="icon">🌐</span>
+                <div class="value">${network.requests || 0}</div>
+                <div class="label">Total Requests</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">⏱️</span>
+                <div class="value">${
+                  network.averageTime ? Math.round(network.averageTime) : 'N/A'
+                } ${network.averageTime ? 'ms' : ''}</div>
+                <div class="label">Avg Response Time</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">⚡</span>
+                <div class="value">${
+                  network.totalTime ? Math.round(network.totalTime) : 'N/A'
+                } ${network.totalTime ? 'ms' : ''}</div>
+                <div class="label">Total Network Time</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">📊</span>
+                <div class="value">${
+                  (efficiency.networkEfficiency &&
+                    efficiency.networkEfficiency.requestsPerSecond) ||
+                  'N/A'
+                }</div>
+                <div class="label">Requests/Second</div>
+            </div>
+        </div>
+    </div>
+    `
+        : ''
+    }
+
+    ${
+      efficiency.articlesPerSecond
+        ? `
+    <div class="efficiency-analysis">
+        <h3 style="margin-bottom: 20px; color: #4a5568;">Efficiency Metrics</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="icon">🚀</span>
+                <div class="value">${efficiency.articlesPerSecond}</div>
+                <div class="label">Articles/Second</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">⏱️</span>
+                <div class="value">${
+                  efficiency.averageTimePerArticle || 'N/A'
+                } ${efficiency.averageTimePerArticle ? 'ms' : ''}</div>
+                <div class="label">Avg Time/Article</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">💾</span>
+                <div class="value">${
+                  efficiency.memoryEfficiency &&
+                  efficiency.memoryEfficiency.memoryPerArticleKB
+                    ? `${efficiency.memoryEfficiency.memoryPerArticleKB} KB`
+                    : 'N/A'
+                }</div>
+                <div class="label">Memory/Article</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">📈</span>
+                <div class="value">${
+                  efficiency.networkEfficiency &&
+                  efficiency.networkEfficiency.networkUtilization
+                    ? `${efficiency.networkEfficiency.networkUtilization}%`
+                    : 'N/A'
+                }</div>
+                <div class="label">Network Utilization</div>
+            </div>
+        </div>
+    </div>
+    `
+        : ''
+    }
 
     <div class="chart-container">
         <h3>Memory Usage Over Time</h3>
@@ -1014,8 +1181,12 @@ function generatePerformanceReport(data) {
  * @returns {string} HTML content
  */
 function generateCompleteReport(data) {
-  const { articles, validationReport, performanceReport } = data;
-  const success = validationReport.summary.validationPassed;
+  const { articles, validationReport, performanceReport, accessibilityReport } =
+    data;
+  const success = validationReport?.summary?.validationPassed || false;
+  const chronologyViolations =
+    validationReport?.chronological?.violations || [];
+  const qualityIssues = validationReport?.quality?.issues || [];
 
   return `
     <div class="header">
@@ -1031,41 +1202,309 @@ function generateCompleteReport(data) {
     <div class="stats-grid">
         <div class="stat-card">
             <span class="icon">📄</span>
-            <div class="value">${articles.length}</div>
+            <div class="value">${articles?.length || 0}</div>
             <div class="label">Articles Validated</div>
         </div>
         <div class="stat-card">
             <span class="icon">🎯</span>
             <div class="value">${
-              validationReport.summary.dataQualityScore
+              validationReport?.summary?.dataQualityScore || 'N/A'
             }/100</div>
             <div class="label">Quality Score</div>
         </div>
         <div class="stat-card">
             <span class="icon">⏱️</span>
             <div class="value">${
-              performanceReport.summary.totalDurationFormatted
+              performanceReport?.summary?.totalDurationFormatted || 'N/A'
             }</div>
             <div class="label">Duration</div>
         </div>
         <div class="stat-card">
             <span class="icon">🔍</span>
-            <div class="value">${
-              validationReport.chronological.violations.length
-            }</div>
-            <div class="label">Violations</div>
+            <div class="value">${chronologyViolations.length}</div>
+            <div class="label">Chronology Violations</div>
         </div>
     </div>
 
+    ${
+      chronologyViolations.length > 0
+        ? `
+    <div class="violations-section">
+        <h3 style="margin-bottom: 20px; color: #e53e3e;">🚨 Chronological Order Violations</h3>
+        <p style="margin-bottom: 20px; color: #4a5568;">The following articles are not in proper chronological order (newest to oldest):</p>
+        ${chronologyViolations
+          .slice(0, 10)
+          .map(
+            (violation) => `
+            <div class="violation-item serious">
+                <div class="violation-header">
+                    <div class="violation-title">Article #${
+                      violation.current.position
+                    } is out of chronological order</div>
+                    <div class="violation-impact-badge serious">ORDER VIOLATION</div>
+                </div>
+                <div class="violation-description">
+                    <strong>Article:</strong> ${violation.current.title}<br>
+                    <strong>Current Position:</strong> Rank #${
+                      violation.current.position
+                    }<br>
+                    <strong>Issue:</strong> This article is newer than the previous article (should be older)<br>
+                    <strong>Time Published:</strong> ${
+                      violation.current.formatted
+                    }
+                </div>
+                <div class="violation-details">
+                    <div class="violation-stats">
+                        <span>📅 Current: ${violation.current.formatted}</span>
+                        <span>⚠️ Previous: ${
+                          violation.previous.formatted
+                        }</span>
+                        <span>⏱️ Time Difference: ${Math.round(
+                          violation.timeDifference / (1000 * 60),
+                        )} minutes newer</span>
+                    </div>
+                </div>
+            </div>
+        `,
+          )
+          .join('')}
+        ${
+          chronologyViolations.length > 10
+            ? `
+        <div class="more-violations">
+            ... and ${
+              chronologyViolations.length - 10
+            } more chronological violations
+        </div>
+        `
+            : ''
+        }
+    </div>
+    `
+        : `
+    <div class="success-message">
+        <h3 style="color: #38a169; margin-bottom: 20px;">✅ Perfect Chronological Order</h3>
+        <p>All ${
+          articles?.length || 0
+        } articles are correctly sorted from newest to oldest!</p>
+    </div>
+    `
+    }
+
+    ${
+      accessibilityReport
+        ? `
+    <div class="accessibility-summary">
+        <h3 style="margin-bottom: 20px; color: #4a5568;">♿ Accessibility Analysis Summary</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="icon">🎯</span>
+                <div class="value">${
+                  accessibilityReport.executive?.score || 'N/A'
+                }/100</div>
+                <div class="label">Accessibility Score</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">🚨</span>
+                <div class="value">${
+                  accessibilityReport.executive?.totalViolations || 0
+                }</div>
+                <div class="label">Total Violations</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">📰</span>
+                <div class="value">${
+                  accessibilityReport.articleAnalysis?.affectedArticles || 0
+                }</div>
+                <div class="label">Articles with Issues</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">⚠️</span>
+                <div class="value">${
+                  accessibilityReport.executive?.criticalIssues || 0
+                }</div>
+                <div class="label">Critical Issues</div>
+            </div>
+        </div>
+
+        ${
+          accessibilityReport.articleAnalysis?.mostProblematicArticles?.length >
+          0
+            ? `
+        <div class="problematic-articles">
+            <h4 style="color: #4a5568; margin-bottom: 15px;">Articles with Accessibility Issues</h4>
+            ${accessibilityReport.articleAnalysis.mostProblematicArticles
+              .slice(0, 5)
+              .map(
+                (articleIssue) => `
+                <div class="article-issue-item">
+                    <div class="article-header">
+                        <span class="article-rank">#${
+                          articleIssue.article.rank
+                        }</span>
+                        <div class="article-title">${
+                          articleIssue.article.title
+                        }</div>
+                    </div>
+                    <div class="article-stats">
+                        <span class="issue-count">${
+                          articleIssue.violations.length
+                        } violation types</span>
+                        <span class="element-count">${
+                          articleIssue.issueCount
+                        } affected elements</span>
+                        <span class="severity-score">Severity: ${
+                          articleIssue.severityScore
+                        }</span>
+                    </div>
+                    <div class="article-violations">
+                        ${articleIssue.violations
+                          .slice(0, 2)
+                          .map(
+                            (violation) => `
+                            <div class="violation-detail">
+                                <strong>${violation.id}:</strong> ${violation.help}
+                                <div class="violation-impact">Impact: ${violation.impact} | ${violation.nodeCount} elements</div>
+                            </div>
+                        `,
+                          )
+                          .join('')}
+                        ${
+                          articleIssue.violations.length > 2
+                            ? `<div class="more-violations">... and ${
+                                articleIssue.violations.length - 2
+                              } more violations</div>`
+                            : ''
+                        }
+                    </div>
+                </div>
+            `,
+              )
+              .join('')}
+        </div>
+        `
+            : ''
+        }
+    </div>
+    `
+        : ''
+    }
+
+    ${
+      qualityIssues.length > 0
+        ? `
+    <div class="quality-issues">
+        <h3 style="margin-bottom: 20px; color: #d69e2e;">📊 Data Quality Issues</h3>
+        ${qualityIssues
+          .slice(0, 5)
+          .map(
+            (issue) => `
+            <div class="violation-item moderate">
+                <div class="violation-title">Data Quality Issue</div>
+                <div class="violation-description">${
+                  issue.description || 'Quality issue detected'
+                }</div>
+                <div class="violation-elements">Article: ${
+                  issue.article || 'Unknown'
+                } | Issue: ${issue.type || 'General'}</div>
+            </div>
+        `,
+          )
+          .join('')}
+    </div>
+    `
+        : ''
+    }
+
     <div class="chart-container">
-        <h3>Article Timeline</h3>
-        <canvas id="timelineChart" width="400" height="200"></canvas>
+        <h3>Article Timeline Analysis</h3>
+        <canvas id="timelineChart" width="400" height="300"></canvas>
     </div>
 
+    ${
+      performanceReport
+        ? `
     <div class="chart-container">
         <h3>Performance Breakdown</h3>
         <canvas id="performanceChart" width="400" height="200"></canvas>
     </div>
+    `
+        : ''
+    }
+
+    ${
+      articles && articles.length > 0
+        ? `
+    <div class="articles-summary">
+        <h3 style="margin-bottom: 20px; color: #4a5568;">📰 Articles Summary (First 10)</h3>
+        ${articles
+          .slice(0, 10)
+          .map(
+            (article, index) => `
+            <div class="timeline-article-item ${
+              chronologyViolations.some(
+                (v) => v.current.position == article.rank,
+              )
+                ? 'has-violation'
+                : ''
+            }">
+                <div class="article-timeline-header">
+                    <span class="article-rank">#${article.rank}</span>
+                    <div class="article-timeline-info">
+                        <div class="article-title">${article.title}</div>
+                        <div class="article-meta">
+                            <span class="article-author">by ${
+                              article.author || 'Unknown'
+                            }</span>
+                            <span class="article-time">${
+                              article.ageText || 'Unknown time'
+                            }</span>
+                            <span class="article-score">${
+                              article.score || 0
+                            } points</span>
+                        </div>
+                    </div>
+                    ${
+                      article.timestamp
+                        ? `
+                    <div class="article-timestamp">
+                        <div class="timestamp-label">Published</div>
+                        <div class="timestamp-value">${new Date(
+                          article.timestamp,
+                        ).toLocaleString()}</div>
+                    </div>
+                    `
+                        : ''
+                    }
+                </div>
+                ${
+                  chronologyViolations.some(
+                    (v) => v.current.position == article.rank,
+                  )
+                    ? `
+                <div class="violation-indicator">
+                    ⚠️ This article appears to be out of chronological order
+                </div>
+                `
+                    : ''
+                }
+            </div>
+        `,
+          )
+          .join('')}
+        ${
+          articles.length > 10
+            ? `
+        <div class="more-articles">
+            <p>... and ${articles.length - 10} more articles validated</p>
+        </div>
+        `
+            : ''
+        }
+    </div>
+    `
+        : ''
+    }
   `;
 }
 
@@ -1145,8 +1584,7 @@ function generateTimelineReport(data) {
   const sortedArticles = [...articles].sort(
     (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
   );
-  const chronologyIssues =
-    validationReport?.violations?.chronologyViolations || [];
+  const chronologyIssues = validationReport?.chronological?.violations || [];
 
   return `
     <div class="header">
@@ -1196,14 +1634,20 @@ function generateTimelineReport(data) {
           .map(
             (violation) => `
             <div class="violation-item serious">
-                <div class="violation-title">Article #${violation.currentRank} is out of order</div>
+                <div class="violation-title">Article #${
+                  violation.current.position
+                } is out of order</div>
                 <div class="violation-description">
-                    <strong>Current:</strong> ${violation.currentTitle}<br>
-                    <strong>Expected Position:</strong> Should be after article #${violation.expectedAfterRank}<br>
-                    <strong>Time Difference:</strong> ${violation.timeDifference}
+                    <strong>Current:</strong> ${violation.current.title}<br>
+                    <strong>Issue:</strong> This article is newer than the previous article<br>
+                    <strong>Time Difference:</strong> ${Math.round(
+                      violation.timeDifference / (1000 * 60),
+                    )} minutes newer
                 </div>
                 <div class="violation-elements">
-                    Published: ${violation.currentTime} | Expected After: ${violation.expectedAfterTime}
+                    Current: ${violation.current.formatted} | Previous: ${
+              violation.previous.formatted
+            }
                 </div>
             </div>
         `,
@@ -1226,7 +1670,7 @@ function generateTimelineReport(data) {
           .map(
             (article, index) => `
             <div class="timeline-article-item ${
-              chronologyIssues.some((v) => v.currentRank == article.rank)
+              chronologyIssues.some((v) => v.current.position == article.rank)
                 ? 'has-violation'
                 : ''
             }">
@@ -1260,7 +1704,9 @@ function generateTimelineReport(data) {
                     }
                 </div>
                 ${
-                  chronologyIssues.some((v) => v.currentRank == article.rank)
+                  chronologyIssues.some(
+                    (v) => v.current.position == article.rank,
+                  )
                     ? `
                 <div class="violation-indicator">
                     ⚠️ This article appears to be out of chronological order
@@ -1333,16 +1779,24 @@ function generateReportScripts(data, reportType) {
 
     if (document.getElementById('timelineChart')) {
         new Chart(document.getElementById('timelineChart'), {
-            type: 'line',
-            data: chartData.timeline,
-            options: {
+            type: chartData.timeline?.type || 'line',
+            data: chartData.timeline?.data || chartData.timeline,
+            options: chartData.timeline?.options || {
                 responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Article Timeline Analysis'
+                    },
+                    legend: {
+                        display: true
+                    }
+                },
                 scales: {
                     x: {
-                        type: 'time',
                         title: {
                             display: true,
-                            text: 'Time'
+                            text: 'Chronological Order'
                         }
                     },
                     y: {
@@ -1459,70 +1913,96 @@ function generateChartData(data, type) {
   }
 
   // Timeline chart
-  if (data.articles) {
+  if (data.articles && data.articles.length > 0) {
     const articles = data.articles.slice(0, 50); // Limit for performance
-    const sortedArticles = [...articles].sort(
-      (a, b) => new Date(a.timestamp) - new Date(b.timestamp),
-    );
+    const sortedArticles = [...articles]
+      .filter((a) => a.timestamp && a.rank) // Only include articles with valid data
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-    charts.timeline = {
-      type: 'line',
-      data: {
-        labels: sortedArticles.map((a, index) => `Article ${index + 1}`),
-        datasets: [
-          {
-            label: 'Article Rank vs Time Order',
-            data: sortedArticles.map((a, index) => ({
-              x: index + 1,
-              y: parseInt(a.rank),
-            })),
-            borderColor: '#667eea',
-            backgroundColor: 'rgba(102, 126, 234, 0.1)',
-            fill: false,
-            tension: 0.1,
-          },
-          {
-            label: 'Expected Chronological Order',
-            data: sortedArticles.map((a, index) => ({
-              x: index + 1,
-              y: index + 1,
-            })),
-            borderColor: '#38a169',
-            backgroundColor: 'rgba(56, 161, 105, 0.1)',
-            borderDash: [5, 5],
-            fill: false,
-            tension: 0.1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Article Chronological Order Analysis',
-          },
-          legend: {
-            display: true,
-          },
+    if (sortedArticles.length > 0) {
+      charts.timeline = {
+        type: 'line',
+        data: {
+          labels: sortedArticles.map((a, index) => `Article ${index + 1}`),
+          datasets: [
+            {
+              label: 'Actual Article Rank',
+              data: sortedArticles.map((a, index) => ({
+                x: index + 1,
+                y: parseInt(a.rank),
+              })),
+              borderColor: '#667eea',
+              backgroundColor: 'rgba(102, 126, 234, 0.1)',
+              fill: false,
+              tension: 0.1,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+            },
+            {
+              label: 'Expected Chronological Order',
+              data: sortedArticles.map((a, index) => ({
+                x: index + 1,
+                y: index + 1,
+              })),
+              borderColor: '#38a169',
+              backgroundColor: 'rgba(56, 161, 105, 0.1)',
+              borderDash: [5, 5],
+              fill: false,
+              tension: 0.1,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+            },
+          ],
         },
-        scales: {
-          x: {
+        options: {
+          responsive: true,
+          plugins: {
             title: {
               display: true,
-              text: 'Chronological Order (by timestamp)',
+              text: 'Article Chronological Order Analysis',
+            },
+            legend: {
+              display: true,
+            },
+            tooltip: {
+              callbacks: {
+                title: function (context) {
+                  const index = context[0].dataIndex;
+                  return (
+                    sortedArticles[index]?.title?.substring(0, 50) + '...' ||
+                    'Article'
+                  );
+                },
+                label: function (context) {
+                  return context.dataset.label + ': Rank #' + context.parsed.y;
+                },
+              },
             },
           },
-          y: {
-            title: {
-              display: true,
-              text: 'Article Rank on Page',
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Chronological Order (by timestamp)',
+              },
+              ticks: {
+                stepSize: 1,
+              },
             },
-            reverse: false,
+            y: {
+              title: {
+                display: true,
+                text: 'Article Rank on Page',
+              },
+              reverse: false,
+              ticks: {
+                stepSize: 1,
+              },
+            },
           },
         },
-      },
-    };
+      };
+    }
   }
 
   // Data completeness chart
