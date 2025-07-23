@@ -81,7 +81,7 @@ async function showPostValidationMenu(validationResult, options) {
       await handleExportOptions(validationResult);
       break;
     case 'accessibility':
-      await handleAccessibilityAudit(options);
+      await handleAccessibilityAudit(articles, options);
       break;
     case 'localhost':
       await handleLocalhostReport(validationResult);
@@ -96,7 +96,9 @@ async function showPostValidationMenu(validationResult, options) {
       await handleAdvancedAnalysis(validationResult);
       break;
     case 'exit':
-      logger.success('👋 Thanks for using HN Validator! Goodbye!');
+      logger.success(
+        '👋 Thanks for checking out my work! Hope to hear from you soon! 🚀',
+      );
       return;
   }
 
@@ -198,10 +200,11 @@ async function handleExportOptions(validationResult) {
 }
 
 /**
- * Handle accessibility audit
+ * Handle accessibility audit with article context
+ * @param {Array} articles - Article data for context
  * @param {Object} options - Original validation options
  */
-async function handleAccessibilityAudit(options) {
+async function handleAccessibilityAudit(articles = [], options = {}) {
   const { auditOptions } = await inquirer.prompt([
     {
       type: 'checkbox',
@@ -244,21 +247,24 @@ async function handleAccessibilityAudit(options) {
     await page.goto('https://news.ycombinator.com/newest');
 
     // Configure audit based on user selections
-    const tags = [];
-    if (auditOptions.includes('wcag21aa')) tags.push('wcag21aa');
-    if (auditOptions.includes('wcag21aaa')) tags.push('wcag21aaa');
+    const runOnly = [];
+    if (auditOptions.includes('wcag21aa')) runOnly.push('wcag21aa');
+    if (auditOptions.includes('wcag21aaa')) runOnly.push('wcag21aaa');
 
-    const auditResults = await performAccessibilityAudit(page, {
-      tags,
+    // Use the enhanced auditor with article context
+    const { AccessibilityAuditor } = require('./accessibility');
+    const auditor = new AccessibilityAuditor();
+    const auditResults = await auditor.auditPageWithContext(page, articles, {
+      runOnly,
       debug: options.debug,
     });
 
     await browser.close();
     spinner.stop();
 
-    // Generate and display report
-    const report = generateAccessibilityReport(auditResults);
-    await displayAccessibilityReport(report);
+    // Generate and display enhanced report
+    const report = auditor.generateReport(auditResults);
+    await displayAccessibilityReport(report, auditResults.articleAnalysis);
   } catch (error) {
     spinner.fail('Accessibility audit failed');
     logger.error('Audit error:', error.message);
@@ -266,10 +272,11 @@ async function handleAccessibilityAudit(options) {
 }
 
 /**
- * Display accessibility report in terminal
+ * Display accessibility report in terminal with article context
  * @param {Object} report - Accessibility report
+ * @param {Object} articleAnalysis - Article-specific analysis
  */
-async function displayAccessibilityReport(report) {
+async function displayAccessibilityReport(report, articleAnalysis = null) {
   const { executive, breakdown, topIssues, recommendations } = report;
 
   // Executive summary
@@ -332,6 +339,50 @@ async function displayAccessibilityReport(report) {
       title: '💡 Recommendations',
       borderColor: 'yellow',
     });
+  }
+
+  // Display article-specific analysis if available
+  if (articleAnalysis) {
+    logger.box(
+      `📰 Article Analysis:
+• Articles Scanned: ${articleAnalysis.totalArticles}
+• Articles with Issues: ${articleAnalysis.affectedArticles}
+• Article-Specific Issues: ${articleAnalysis.issueDistribution.articleSpecific}
+• General Page Issues: ${articleAnalysis.issueDistribution.generalPage}`,
+      {
+        title: '📊 Article Impact Analysis',
+        borderColor: 'blue',
+      },
+    );
+
+    // Show most problematic articles
+    if (articleAnalysis.mostProblematicArticles.length > 0) {
+      logger.info('\n🚨 Articles with Most Accessibility Issues:');
+      articleAnalysis.mostProblematicArticles
+        .slice(0, 3)
+        .forEach((articleIssue, index) => {
+          const { article, violations, severityScore, issueCount } =
+            articleIssue;
+          logger.info(
+            `${index + 1}. ${logger.chalk.yellow(
+              `#${article.rank}`,
+            )} ${logger.chalk.cyan(article.title.substring(0, 60))}${
+              article.title.length > 60 ? '...' : ''
+            }
+     └─ ${
+       violations.length
+     } violation types, ${issueCount} total issues (severity: ${severityScore})`,
+          );
+        });
+    }
+
+    // Show general page issues
+    if (articleAnalysis.generalPageIssues.length > 0) {
+      logger.info('\n🌐 General Page Issues (not article-specific):');
+      articleAnalysis.generalPageIssues.slice(0, 3).forEach((issue, index) => {
+        logger.info(`${index + 1}. ${issue.id}: ${issue.description}`);
+      });
+    }
   }
 
   // Ask if user wants to see detailed report

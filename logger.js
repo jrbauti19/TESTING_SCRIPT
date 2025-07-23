@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const boxen = require('boxen');
 const gradient = require('gradient-string');
 const figlet = require('figlet');
+const ora = require('ora');
 
 const icons = {
   info: 'ℹ️',
@@ -125,4 +126,5 @@ module.exports = {
   colors,
   chalk,
   gradient,
+  ora,
 };

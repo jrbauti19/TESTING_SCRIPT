@@ -34,7 +34,7 @@ async function validateHackerNewsArticles(options = {}) {
   const systemInfo = getSystemInfo();
 
   // Show banner
-  logger.banner('HN Validator');
+  logger.banner('Please Hire Me');
 
   // Show configuration
   logger.box(
