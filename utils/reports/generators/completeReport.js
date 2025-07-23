@@ -72,7 +72,16 @@ function generateCompleteReport(data) {
                     <div class="violation-impact-badge serious">ORDER VIOLATION</div>
                 </div>
                 <div class="violation-description">
-                    <strong>Article:</strong> ${violation.current.title}<br>
+                    <strong>Article:</strong> 
+                    <a href="${
+                      violation.current.url ||
+                      `https://news.ycombinator.com/item?id=${violation.current.id}`
+                    }" 
+                       target="_blank" 
+                       class="article-link"
+                       title="Open article in new tab">
+                        ${violation.current.title}
+                    </a><br>
                     <strong>Current Position:</strong> Rank #${
                       violation.current.position
                     }<br>
@@ -100,9 +109,60 @@ function generateCompleteReport(data) {
           chronologyViolations.length > 10
             ? `
         <div class="more-violations">
-            ... and ${
-              chronologyViolations.length - 10
-            } more chronological violations
+            <button id="expandViolationsBtn" class="expand-button" onclick="expandAllViolations()">
+                📋 Show all ${
+                  chronologyViolations.length - 10
+                } remaining violations
+            </button>
+        </div>
+        <div id="hiddenViolations" class="hidden-violations" style="display: none;">
+            ${chronologyViolations
+              .slice(10)
+              .map(
+                (violation) => `
+                <div class="violation-item serious">
+                    <div class="violation-header">
+                        <div class="violation-title">Article #${
+                          violation.current.position
+                        } is out of chronological order</div>
+                        <div class="violation-impact-badge serious">ORDER VIOLATION</div>
+                    </div>
+                    <div class="violation-description">
+                        <strong>Article:</strong> 
+                        <a href="${
+                          violation.current.url ||
+                          `https://news.ycombinator.com/item?id=${violation.current.id}`
+                        }" 
+                           target="_blank" 
+                           class="article-link"
+                           title="Open article in new tab">
+                            ${violation.current.title}
+                        </a><br>
+                        <strong>Current Position:</strong> Rank #${
+                          violation.current.position
+                        }<br>
+                        <strong>Issue:</strong> This article is newer than the previous article (should be older)<br>
+                        <strong>Time Published:</strong> ${
+                          violation.current.formatted
+                        }
+                    </div>
+                    <div class="violation-details">
+                        <div class="violation-stats">
+                            <span>📅 Current: ${
+                              violation.current.formatted
+                            }</span>
+                            <span>⚠️ Previous: ${
+                              violation.previous.formatted
+                            }</span>
+                            <span>⏱️ Time Difference: ${Math.round(
+                              violation.timeDifference / (1000 * 60),
+                            )} minutes newer</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+              )
+              .join('')}
         </div>
         `
             : ''
@@ -279,7 +339,17 @@ function generateCompleteReport(data) {
                 <div class="article-timeline-header">
                     <span class="article-rank">#${article.rank}</span>
                     <div class="article-timeline-info">
-                        <div class="article-title">${article.title}</div>
+                        <div class="article-title">
+                            <a href="${
+                              article.url ||
+                              `https://news.ycombinator.com/item?id=${article.id}`
+                            }" 
+                               target="_blank" 
+                               class="article-link"
+                               title="Open article in new tab">
+                                ${article.title}
+                            </a>
+                        </div>
                         <div class="article-meta">
                             <span class="article-author">by ${
                               article.author || 'Unknown'

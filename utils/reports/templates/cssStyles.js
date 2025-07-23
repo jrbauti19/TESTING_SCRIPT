@@ -588,6 +588,98 @@ function generateReportStyles() {
         font-size: 0.95em;
     }
 
+    .expand-button {
+        background: linear-gradient(135deg, #4299e1, #2b6cb0);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95em;
+        box-shadow: 0 2px 8px rgba(66, 153, 225, 0.3);
+    }
+
+    .expand-button:hover {
+        background: linear-gradient(135deg, #2b6cb0, #2c5282);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+    }
+
+    .expand-button:active {
+        transform: translateY(0);
+    }
+
+    .hidden-violations {
+        margin-top: 20px;
+        border-top: 2px solid #e2e8f0;
+        padding-top: 20px;
+    }
+
+    .article-link {
+        color: #4299e1;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid transparent;
+    }
+
+    .article-link:hover {
+        color: #2b6cb0;
+        text-decoration: none;
+        border-bottom: 1px solid #4299e1;
+        transform: translateY(-1px);
+    }
+
+    .article-link:visited {
+        color: #805ad5;
+    }
+
+    .timeline-article-item .article-link {
+        color: #2d3748;
+        font-weight: 600;
+    }
+
+    .timeline-article-item .article-link:hover {
+        color: #4299e1;
+    }
+
+    .external-indicator {
+        opacity: 0.6;
+        font-size: 0.8em;
+        margin-left: 4px;
+    }
+
+    .more-violations {
+        text-align: center;
+        margin: 25px 0;
+        padding: 20px;
+        background: #f7fafc;
+        border-radius: 10px;
+        border: 2px dashed #cbd5e0;
+    }
+
+    .hidden-violations {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .expand-button:focus {
+        outline: 3px solid rgba(66, 153, 225, 0.3);
+        outline-offset: 2px;
+    }
+
     @media (max-width: 768px) {
         .container {
             padding: 10px;

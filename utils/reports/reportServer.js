@@ -6,7 +6,7 @@
 const express = require('express');
 const path = require('path');
 const open = require('open');
-const logger = require('../logger');
+const logger = require('../../logger');
 const { generateReportHTML } = require('./templates/htmlTemplate');
 
 /**
