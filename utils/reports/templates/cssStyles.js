@@ -824,15 +824,9 @@ function generateReportStyles() {
         text-align: center;
     }
 
-    .timeline-articles {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
 
-    .timeline-article-item {
+
+    .article-item {
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         padding: 20px;
@@ -841,27 +835,27 @@ function generateReportStyles() {
         transition: all 0.3s ease;
     }
 
-    .timeline-article-item:hover {
+    .article-item:hover {
         box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         transform: translateY(-2px);
     }
 
-    .timeline-article-item.has-violation {
+    .article-item.has-violation {
         border-color: #e53e3e;
         background: #fed7d7;
     }
 
-    .article-timeline-header {
+    .article-header {
         display: flex;
         align-items: flex-start;
         gap: 15px;
     }
 
-    .article-timeline-info {
+    .article-info {
         flex: 1;
     }
 
-    .article-timeline-info .article-title {
+    .article-info .article-title {
         font-weight: 600;
         color: #2d3748;
         margin-bottom: 8px;
@@ -1076,12 +1070,12 @@ function generateReportStyles() {
         color: #805ad5;
     }
 
-    .timeline-article-item .article-link {
+    .article-item .article-link {
         color: #2d3748;
         font-weight: 600;
     }
 
-    .timeline-article-item .article-link:hover {
+    .article-item .article-link:hover {
         color: #4299e1;
     }
 
@@ -1120,6 +1114,119 @@ function generateReportStyles() {
         outline-offset: 2px;
     }
 
+    /* Performance Report Specific Styles */
+    .timeline-container {
+        margin-top: 20px;
+    }
+
+    .phase-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f7fafc;
+    }
+
+    .phase-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .phase-header h4 {
+        margin: 0;
+        color: #2d3748;
+        font-size: 1.1rem;
+    }
+
+    .phase-duration {
+        font-weight: 600;
+        color: #4299e1;
+        font-size: 0.9rem;
+    }
+
+    .phase-details {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .phase-bar {
+        flex: 1;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .phase-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4299e1, #38a169);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .phase-stats {
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+    }
+
+    .percentage {
+        color: #4299e1;
+        font-weight: 600;
+    }
+
+    .memory-delta {
+        color: #718096;
+    }
+
+    .memory-stats, .network-stats, .efficiency-stats, .pagination-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .memory-item, .network-item, .efficiency-item, .pagination-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background: #f7fafc;
+        border-radius: 8px;
+        border-left: 4px solid #4299e1;
+    }
+
+    .memory-label, .network-label, .efficiency-label, .pagination-label {
+        color: #4a5568;
+        font-weight: 500;
+    }
+
+    .memory-value, .network-value, .efficiency-value, .pagination-value {
+        color: #2d3748;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .stat-card.total-time {
+        border-left: 4px solid #4299e1;
+    }
+
+    .stat-card.memory {
+        border-left: 4px solid #38a169;
+    }
+
+    .stat-card.network {
+        border-left: 4px solid #ed8936;
+    }
+
+    .stat-card.efficiency {
+        border-left: 4px solid #9f7aea;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
         .container {
             padding: 10px;

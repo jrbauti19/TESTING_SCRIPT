@@ -6,7 +6,6 @@
 const { generateCompleteReport } = require('./completeReport');
 const { generateAccessibilityReport } = require('./accessibilityReport');
 const { generatePerformanceReport } = require('./performanceReport');
-const { generateTimelineReport } = require('./timelineReport');
 const { generateQualityReport } = require('./qualityReport');
 
 /**
@@ -27,8 +26,6 @@ function generateReportContent(data, reportType) {
         return generateCompleteReport(data);
       case 'quality':
         return generateQualityReport(data);
-      case 'timeline':
-        return generateTimelineReport(data);
       default:
         return generateCompleteReport(data);
     }

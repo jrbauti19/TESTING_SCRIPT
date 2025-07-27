@@ -197,7 +197,7 @@ ${logger.colors.info('System:')} ${logger.chalk.white.bold(
             this.options.debug,
           );
         },
-        1,
+        this.options.retryAttempts,
         3000,
         this.options.debug ? logger : null,
       );

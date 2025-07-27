@@ -27,14 +27,11 @@ function displayFinalSummary(result, options, startTime) {
       `Articles: ${result.articles?.length || 0}/${options.articleCount}\n` +
       `Pages: ${result.pages || 'N/A'}\n` +
       `Duration: ${totalTime.toFixed(2)}s\n` +
-      `Quality Score: ${
-        result.validationReport?.summary?.dataQualityScore || 'N/A'
-      }/100`,
-    {
-      title: '📋 Final Summary',
-      titleAlignment: 'center',
-      borderColor: result.success ? 'green' : 'yellow',
-    },
+      {
+        title: '📋 Final Summary',
+        titleAlignment: 'center',
+        borderColor: result.success ? 'green' : 'yellow',
+      },
   );
 
   if (result.validationReport?.recommendations?.length > 0) {

@@ -12,8 +12,6 @@
 function generateChartData(data, chartType) {
   try {
     switch (chartType) {
-      case 'timeline':
-        return generateTimelineChart(data);
       case 'performance':
         return generatePerformanceChart(data);
       case 'accessibility':
@@ -60,123 +58,6 @@ function generateChartData(data, chartType) {
       },
     };
   }
-}
-
-/**
- * Generate timeline chart data
- * @param {Object} data - Report data with articles
- * @returns {Object} Chart.js timeline chart configuration
- */
-function generateTimelineChart(data) {
-  const { articles } = data;
-
-  if (!articles || articles.length === 0) {
-    return {
-      type: 'line',
-      data: {
-        labels: ['No Articles'],
-        datasets: [
-          {
-            label: 'No Data',
-            data: [0],
-            borderColor: '#e2e8f0',
-          },
-        ],
-      },
-    };
-  }
-
-  // Filter and sort articles with valid timestamps
-  const validArticles = articles
-    .filter((article) => article.timestamp && article.rank)
-    .sort((a, b) => a.rank - b.rank);
-
-  if (validArticles.length === 0) {
-    return {
-      type: 'line',
-      data: {
-        labels: ['No Valid Data'],
-        datasets: [
-          {
-            label: 'No Timeline Data',
-            data: [0],
-          },
-        ],
-      },
-    };
-  }
-
-  const labels = validArticles.map((_, index) => index + 1);
-  const actualRanks = validArticles.map((article) => article.rank);
-  const expectedOrder = validArticles.map((_, index) => index + 1);
-
-  return {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Actual Article Rank',
-          data: actualRanks,
-          borderColor: '#4299e1',
-          backgroundColor: 'rgba(66, 153, 225, 0.1)',
-          tension: 0.1,
-        },
-        {
-          label: 'Expected Chronological Order',
-          data: expectedOrder,
-          borderColor: '#38a169',
-          backgroundColor: 'rgba(56, 161, 105, 0.1)',
-          borderDash: [5, 5],
-          tension: 0.1,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Article Timeline Analysis',
-        },
-        tooltip: {
-          callbacks: {
-            title: function (context) {
-              const index = context[0].dataIndex;
-              return validArticles[index]?.title || `Article ${index + 1}`;
-            },
-            label: function (context) {
-              const index = context.dataIndex;
-              const article = validArticles[index];
-              return `${context.dataset.label}: #${context.parsed.y} (${
-                article?.ageText || 'Unknown time'
-              })`;
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: 'Article Position',
-          },
-          ticks: {
-            stepSize: 1,
-          },
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Rank Number',
-          },
-          ticks: {
-            stepSize: 1,
-          },
-        },
-      },
-    },
-  };
 }
 
 /**
@@ -309,7 +190,6 @@ function generateAccessibilityChart(data) {
 
 module.exports = {
   generateChartData,
-  generateTimelineChart,
   generatePerformanceChart,
   generateAccessibilityChart,
 };

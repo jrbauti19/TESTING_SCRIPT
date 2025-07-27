@@ -209,7 +209,6 @@ function generateValidationReport(articles) {
       totalArticles: articles.length,
       isChronologicallyValid: chronological.isValid,
       hasDuplicates: duplicates.hasDuplicates,
-      dataQualityScore: calculateDataQualityScore(quality),
       validationPassed: chronological.isValid && !duplicates.hasDuplicates,
     },
     chronological,
@@ -222,28 +221,6 @@ function generateValidationReport(articles) {
       quality,
     ),
   };
-}
-
-/**
- * Calculate data quality score (0-100)
- * @param {Object} quality - Data quality analysis
- * @returns {number} Quality score
- */
-function calculateDataQualityScore(quality) {
-  if (quality.totalArticles === 0) return 0;
-
-  const completenessScore =
-    100 -
-    ((quality.missingData.ids +
-      quality.missingData.titles +
-      quality.missingData.timestamps) /
-      (quality.totalArticles * 3)) *
-      100;
-
-  const validityScore =
-    (quality.dataTypes.validTimestamps / quality.totalArticles) * 100;
-
-  return Math.round((completenessScore + validityScore) / 2);
 }
 
 /**
@@ -294,6 +271,5 @@ module.exports = {
   detectDuplicates,
   analyzeDataQuality,
   generateValidationReport,
-  calculateDataQualityScore,
   generateRecommendations,
 };

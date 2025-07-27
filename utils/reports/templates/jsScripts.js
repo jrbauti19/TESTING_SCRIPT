@@ -6,15 +6,6 @@
 const { generateChartData } = require('../charts/chartGenerator');
 
 /**
- * Generate timeline chart data
- * @param {Object} data - Report data
- * @returns {Object} Chart.js configuration
- */
-function generateTimelineChartData(data) {
-  return generateChartData(data, 'timeline');
-}
-
-/**
  * Generate performance chart data
  * @param {Object} data - Report data
  * @returns {Object} Chart.js configuration
@@ -46,27 +37,7 @@ function generateReportScripts(data, reportType) {
     });
 
     async function initializeCharts() {
-      // Timeline Chart
-      const timelineCanvas = document.getElementById('timelineChart');
-      if (timelineCanvas) {
-        try {
-          const response = await fetch('/api/chart/timeline');
-          const timelineData = await response.json();
-          new Chart(timelineCanvas, timelineData);
-          console.log('Timeline chart initialized');
-        } catch (error) {
-          console.error('Timeline chart error:', error);
-          // Fallback to embedded data
-          try {
-            const fallbackData = ${JSON.stringify(
-              generateTimelineChartData(data),
-            )};
-            new Chart(timelineCanvas, fallbackData);
-          } catch (fallbackError) {
-            console.error('Timeline chart fallback failed:', fallbackError);
-          }
-        }
-      }
+
 
       // Performance Chart
       const performanceCanvas = document.getElementById('performanceChart');

@@ -415,7 +415,6 @@ async function handleLocalhostReport(validationResult) {
         { name: '♿ Accessibility Compliance Report', value: 'accessibility' },
         { name: 'Performance Dashboard', value: 'performance' },
         { name: 'Data Quality Analysis', value: 'quality' },
-        { name: 'Article Timeline View', value: 'timeline' },
       ],
     },
   ]);

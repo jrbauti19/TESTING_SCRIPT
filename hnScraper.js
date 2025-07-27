@@ -92,7 +92,6 @@ function displayValidationSummary(result, options) {
   if (result.success) {
     logger.successBox('🎉 VALIDATION SUCCESSFUL!', [
       `All ${result.articles.length} articles are properly sorted from newest to oldest`,
-      `Data quality score: ${result.validationReport.summary.dataQualityScore}/100`,
       `Validation completed in ${result.performanceReport.summary.totalDurationFormatted}`,
       `Articles processed: ${result.articles.length}`,
       `Pages processed: ${result.pages}`,
@@ -109,9 +108,6 @@ function displayValidationSummary(result, options) {
             result.validationReport?.duplicates?.duplicates?.byId?.length || 0
           } duplicate articles`
         : '✓ No duplicate articles found',
-      `Data quality score: ${
-        result.validationReport?.summary?.dataQualityScore || 'N/A'
-      }/100`,
       `Articles processed: ${result.articles?.length || 0}`,
       `Pages processed: ${result.pages || 0}`,
     ];
@@ -142,9 +138,6 @@ function displayValidationSummary(result, options) {
       'Network Requests': result.performanceReport.summary.networkRequests,
       'Peak Memory': `${result.performanceReport.summary.peakMemoryMB} MB`,
       'Memory Delta': `${result.performanceReport.summary.memoryDeltaMB} MB`,
-      'Data Quality Score': `${
-        result.validationReport?.summary?.dataQualityScore || 'N/A'
-      }/100`,
       'Average Time Gap': result.validationReport?.chronological?.averageGap
         ? `${Math.round(
             result.validationReport.chronological.averageGap / 1000 / 60,

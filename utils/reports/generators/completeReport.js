@@ -33,13 +33,7 @@ function generateCompleteReport(data) {
             <div class="value">${articles?.length || 0}</div>
             <div class="label">Articles Validated</div>
         </div>
-        <div class="stat-card">
-            <span class="icon">🎯</span>
-            <div class="value">${
-              validationReport?.summary?.dataQualityScore || 'N/A'
-            }/100</div>
-            <div class="label">Quality Score</div>
-        </div>
+
         <div class="stat-card">
             <span class="icon">⏱️</span>
             <div class="value">${
@@ -304,10 +298,7 @@ function generateCompleteReport(data) {
         : ''
     }
 
-    <div class="chart-container">
-        <h3>Article Timeline Analysis</h3>
-        <canvas id="timelineChart" width="400" height="300"></canvas>
-    </div>
+
 
     ${
       performanceReport
@@ -329,16 +320,16 @@ function generateCompleteReport(data) {
           .slice(0, 10)
           .map(
             (article, index) => `
-            <div class="timeline-article-item ${
+            <div class="article-item ${
               chronologyViolations.some(
                 (v) => v.current.position == article.rank,
               )
                 ? 'has-violation'
                 : ''
             }">
-                <div class="article-timeline-header">
+                <div class="article-header">
                     <span class="article-rank">#${article.rank}</span>
-                    <div class="article-timeline-info">
+                    <div class="article-info">
                         <div class="article-title">
                             <a href="${
                               article.url ||
