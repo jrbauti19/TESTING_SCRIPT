@@ -969,6 +969,11 @@ function generateReportStyles() {
     .grade-b { background: #faf089; color: #744210; }
     .grade-c { background: #fed7d7; color: #742a2a; }
     .grade-f { background: #feb2b2; color: #742a2a; }
+    .grade-green { background: #c6f6d5; color: #22543d; }
+    .grade-cyan { background: #b2f5ea; color: #234e52; }
+    .grade-yellow { background: #faf089; color: #744210; }
+    .grade-red { background: #fed7d7; color: #742a2a; }
+    .grade-gray { background: #e2e8f0; color: #2d3748; }
 
     .contact-footer {
         margin-top: 50px;
@@ -1043,6 +1048,178 @@ function generateReportStyles() {
 
     .expand-button:active {
         transform: translateY(0);
+    }
+
+    .security-test-item {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-left: 5px solid #e2e8f0;
+    }
+
+    .security-test-item.pass {
+        border-left-color: #48bb78;
+    }
+
+    .security-test-item.warn {
+        border-left-color: #ed8936;
+    }
+
+    .security-test-item.fail {
+        border-left-color: #f56565;
+    }
+
+    .security-test-item.error {
+        border-left-color: #e53e3e;
+    }
+
+    .test-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .test-title {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #2d3748;
+    }
+
+    .test-status {
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: 0.9em;
+        text-transform: uppercase;
+    }
+
+    .test-status.pass {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+
+    .test-status.warn {
+        background: #faf089;
+        color: #744210;
+    }
+
+    .test-status.fail {
+        background: #fed7d7;
+        color: #742a2a;
+    }
+
+    .test-status.error {
+        background: #feb2b2;
+        color: #742a2a;
+    }
+
+    .test-details {
+        margin-bottom: 15px;
+    }
+
+    .test-detail {
+        margin-bottom: 8px;
+        color: #4a5568;
+        line-height: 1.5;
+    }
+
+    .test-issues {
+        background: #fff5f5;
+        border-radius: 8px;
+        padding: 15px;
+        border-left: 4px solid #f56565;
+    }
+
+    .issue-item {
+        margin-bottom: 8px;
+        color: #742a2a;
+        line-height: 1.4;
+    }
+
+    .recommendations-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .recommendations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .recommendation-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 15px;
+        background: #f7fafc;
+        border-radius: 8px;
+        border-left: 4px solid #4299e1;
+    }
+
+    .recommendation-number {
+        background: #4299e1;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9em;
+        flex-shrink: 0;
+    }
+
+    .recommendation-text {
+        color: #2d3748;
+        line-height: 1.5;
+    }
+
+    .security-summary {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .summary-item {
+        padding: 15px;
+        background: #f7fafc;
+        border-radius: 8px;
+        color: #2d3748;
+    }
+
+    .contact-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .contact-item {
+        color: #4a5568;
+        line-height: 1.5;
     }
 
     .hidden-violations {

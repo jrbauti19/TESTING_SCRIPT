@@ -7,6 +7,7 @@ const logger = require('../logger');
 const { validateHackerNewsArticles } = require('../hnScraper');
 const { showPostValidationMenu } = require('../utils/interactive');
 const { runAccessibilityAuditIfRequested } = require('./accessibilityHandler');
+const { runSecurityAuditIfRequested } = require('./securityHandler');
 const {
   displayFinalSummary,
   displayContactInfo,
@@ -38,6 +39,9 @@ async function runApplication(options) {
 
     // Handle accessibility audit
     await runAccessibilityAuditIfRequested(options);
+
+    // Handle security audit
+    await runSecurityAuditIfRequested(options);
 
     // Return appropriate exit code
     return determineExitCode(result, options);

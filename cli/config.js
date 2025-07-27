@@ -70,6 +70,11 @@ function parseArguments() {
       description: 'Run accessibility audit after validation',
       default: false,
     })
+    .option('security', {
+      type: 'boolean',
+      description: 'Run comprehensive security assessment after validation',
+      default: false,
+    })
     .option('demo', {
       type: 'boolean',
       description: 'Enable demo mode with visible browser and enhanced output',
@@ -91,6 +96,10 @@ function parseArguments() {
     .example(
       '$0 --accessibility --interactive',
       'Validate with accessibility audit and interactive menu',
+    )
+    .example(
+      '$0 --security --interactive',
+      'Validate with security assessment and interactive menu',
     )
     .example(
       '$0 --demo --count 20',
@@ -157,6 +166,7 @@ function createApplicationOptions(argv) {
     quiet: argv.quiet,
     interactive: argv.interactive,
     accessibility: argv.accessibility,
+    security: argv.security,
     demo: argv.demo,
   };
 }
@@ -170,6 +180,7 @@ function generateHelpEpilog() {
 🚀 Advanced Features:
 • Interactive post-validation menu with article context
 • Accessibility testing with WCAG compliance & article mapping
+• Security assessment with comprehensive vulnerability scanning
 • Localhost report viewer with interactive charts
 • Continue validation with more articles
 • Advanced data analysis and statistics
@@ -180,6 +191,7 @@ function generateHelpEpilog() {
 🎯 Interactive Features:
 • Export detailed reports
 • Run accessibility audits with article-specific violations
+• Run security assessments with vulnerability scanning
 • Launch localhost report viewer
 • Continue with more articles
 • View performance breakdowns

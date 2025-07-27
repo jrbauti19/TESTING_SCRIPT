@@ -9,6 +9,7 @@ const {
   performAccessibilityAudit,
   generateAccessibilityReport,
 } = require('./accessibility');
+const { handleSecurityTesting } = require('../cli/securityHandler');
 const { createReportServer } = require('./reports/reportServer');
 
 /**
@@ -38,6 +39,11 @@ async function showPostValidationMenu(validationResult, options) {
       name: `🔍 Run accessibility audit on Hacker News`,
       value: 'accessibility',
       short: 'Accessibility',
+    },
+    {
+      name: `🔒 Run security assessment on Hacker News`,
+      value: 'security',
+      short: 'Security',
     },
     {
       name: `🌐 Launch localhost report viewer`,
@@ -82,6 +88,9 @@ async function showPostValidationMenu(validationResult, options) {
       break;
     case 'accessibility':
       await handleAccessibilityAudit(articles, options);
+      break;
+    case 'security':
+      await handleSecurityTesting(options);
       break;
     case 'localhost':
       await handleLocalhostReport(validationResult);
@@ -413,6 +422,7 @@ async function handleLocalhostReport(validationResult) {
       choices: [
         { name: 'Complete Validation Report', value: 'complete' },
         { name: '♿ Accessibility Compliance Report', value: 'accessibility' },
+        { name: '🔒 Security Assessment Report', value: 'security' },
         { name: 'Performance Dashboard', value: 'performance' },
         { name: 'Data Quality Analysis', value: 'quality' },
       ],

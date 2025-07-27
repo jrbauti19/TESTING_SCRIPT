@@ -5,6 +5,7 @@
 
 const { generateCompleteReport } = require('./completeReport');
 const { generateAccessibilityReport } = require('./accessibilityReport');
+const { generateSecurityReport } = require('./securityReport');
 const { generatePerformanceReport } = require('./performanceReport');
 const { generateQualityReport } = require('./qualityReport');
 
@@ -19,6 +20,8 @@ function generateReportContent(data, reportType) {
     switch (reportType) {
       case 'accessibility':
         return generateAccessibilityReport(data);
+      case 'security':
+        return generateSecurityReport(data.securityReport || data);
       case 'performance':
         // Extract performance data from validation result
         return generatePerformanceReport(data.performanceReport || data);
