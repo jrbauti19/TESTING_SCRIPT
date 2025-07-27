@@ -412,6 +412,7 @@ async function handleLocalhostReport(validationResult) {
       message: 'Which report would you like to view?',
       choices: [
         { name: 'Complete Validation Report', value: 'complete' },
+        { name: '♿ Accessibility Compliance Report', value: 'accessibility' },
         { name: 'Performance Dashboard', value: 'performance' },
         { name: 'Data Quality Analysis', value: 'quality' },
         { name: 'Article Timeline View', value: 'timeline' },
